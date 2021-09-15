@@ -59,3 +59,44 @@ fun isEven(n:Int) : Boolean = ((n % 2 ) == 0)
   - Reactor-Kotlin
   - Redux-Kotlin
   - FunKTionale
+
+# RxJava의 푸시 메커니즘과 풀 매커니즘 비교
+- Rxkotlin은 전통적인 프로그램에서 사용되는 반복자 패턴의 풀 메커니즘 대신 푸시 메커니즘의 데이터/이벤트 시스템으로 대표되는 옵저버블 패턴을 중심으로 작동
+- 그렇기 때문에 지연 평가가 일어나면 동기식 또는 비동기식으로 모두 이용 가능
+```
+fun main(args: Array<String>){
+    var list:List<Any> = listOf("One",2,"Three","Four",4.5,"Five",6.0f)
+    var iterator = list.iterator()
+    while(iterator.hasNext()){
+        println(iterator.next())
+    }
+}
+```
+```
+fun main(args:Array<String>){
+    var list:List<Any> = listOf("One",2,"Three","Four",4.5,"Five",6.0f)
+    var observable: Observable<Any> = list.toObservable();
+    
+    observable.subscribeBy(
+        onNext = { println(it) },
+        onError = { it.printStackTrace() },
+        onComplete = { println("Done!") }
+    }
+}
+
+// 리스트 생성 -> 리스트에 대한 observable 인스턴스 생성 -> observable 인스턴스를 구독
+// observable을 구독했기 때문에 모든 변경 사항은 onNext로 푸시괼 것이고, 모든 데이터가 푸시되면 onComplete, 에러발생시 onError 호출
+```
+
+
+# ReactiveEvenOdd 프로그램
+```
+fun main(args : Array<String>) {
+    var subject:Subject<Int> = PublishSubject.create()
+    subject.map( { isEven(it) }).subscribe({println("The number is ${(if (it) "Even" else "Odd" )}" )})
+    subject.onNext(4)
+    subject.onNext(9)
+}
+// the number is Even
+// the number is Odd
+```
